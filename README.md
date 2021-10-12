@@ -1,0 +1,1 @@
+Link to related article: https://stacktonic.com/article/create-a-user-profile-and-recommender-service-using-big-query-redis-and-gtm-server
