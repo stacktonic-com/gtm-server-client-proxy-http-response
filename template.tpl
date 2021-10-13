@@ -38,22 +38,6 @@ ___TEMPLATE_PARAMETERS___
     "notSetText": "This field is required"
   },
   {
-    "type": "RADIO",
-    "name": "requestMethod",
-    "displayName": "Request method",
-    "radioItems": [
-      {
-        "value": "GET",
-        "displayValue": "GET"
-      },
-      {
-        "value": "POST",
-        "displayValue": "POST"
-      }
-    ],
-    "simpleValueType": true
-  },
-  {
     "type": "TEXT",
     "name": "httpEndpoint",
     "displayName": "External HTTP endpoint",
@@ -64,12 +48,6 @@ ___TEMPLATE_PARAMETERS___
     "type": "CHECKBOX",
     "name": "passQueryParameters",
     "checkboxText": "Pass query parameters",
-    "simpleValueType": true
-  },
-  {
-    "type": "CHECKBOX",
-    "name": "passBody",
-    "checkboxText": "Pass request body (POST requests)",
     "simpleValueType": true
   },
   {
@@ -93,20 +71,6 @@ ___TEMPLATE_PARAMETERS___
     "simpleValueType": true,
     "help": "Configure event name to push response data to the GTM container",
     "defaultValue": "user_store"
-  },
-  {
-    "type": "TEXT",
-    "name": "authSecretQueryParam",
-    "displayName": "Secret key query parameter",
-    "simpleValueType": true,
-    "help": "In which ?query\u003d parameter is the secret key passed. Leave blank when you don\u0027t want to use a secret key."
-  },
-  {
-    "type": "TEXT",
-    "name": "authSecret",
-    "displayName": "Secret key",
-    "simpleValueType": true,
-    "help": "Secret key to check within external HTTP service"
   }
 ]
 
@@ -159,9 +123,8 @@ if (getRequestPath() === data.requestPath && originAllowed === true) {
   
   if (data.passQueryParameters === true) {
       const queryString = getRequestQueryString() || "";
-
-      if (data.authSecretQueryParam != '') {
-        requestUrl = data.httpEndpoint + "?" + data.authSecretQueryParam + "=" + data.authSecret + "&" + queryString;
+      if (requestUrl.indexOf("?") > -1) {
+        requestUrl = data.httpEndpoint + "&" + queryString; 
       } else {
         requestUrl = data.httpEndpoint + "?" + queryString; 
       }
@@ -173,14 +136,11 @@ if (getRequestPath() === data.requestPath && originAllowed === true) {
     // Succesfull response
     if (statusCode >= 200 && statusCode < 300) {
       
-      const jsonData = JSON.parse(body);
+      const jsonData = JSON.parse(body) || {};
       
-      // Parse result into an event object
-      const event = {
-        event_name: data.eventName,
-        data: jsonData
-      };
-      
+      let event = jsonData;
+      event.event_name = data.eventName;
+
       // Return succesfull response headers
       setResponseStatus(200);
       setResponseBody(body);
@@ -396,6 +356,6 @@ scenarios:
 
 ___NOTES___
 
-Created on 10/12/2021, 6:12:56 PM
+Created on 10/13/2021, 8:45:49 AM
 
 
